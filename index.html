@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WordFlash">
+<meta name="theme-color" content="#0e0e1e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>WordFlash</title>
+<style>
+  :root {
+    --font-scale: 1;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  @font-face {
+    font-family: 'SystemFont';
+    src: local('PingFang SC'), local('Microsoft YaHei'), local('Segoe UI'), local('Helvetica Neue'), local('Arial');
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'SystemFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #0e0e1e 0%, #1a1535 50%, #0e0e1e 100%);
+    color: #fff;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    position: fixed;
+    inset: 0;
+    overscroll-behavior: none;
+    touch-action: manipulation;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(12px + var(--safe-top)) 16px 8px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 18px; font-weight: 700;
+  }
+  .logo svg { width: 24px; height: 24px; fill: #00e5ff; }
+  .logo span { background: linear-gradient(90deg, #00e5ff, #7c4dff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .search-box {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.07); border-radius: 8px;
+    padding: 5px 14px; border: 1px solid rgba(255,255,255,0.08);
+    transition: border-color .2s;
+  }
+  .search-box:focus-within { border-color: rgba(0,229,255,0.4); }
+  .search-box svg { width: 16px; height: 16px; fill: #666; flex-shrink: 0; }
+  .search-box input {
+    background: none; border: none; outline: none; color: #fff;
+    font-size: 14px; width: 140px;
+  }
+  .search-box input::placeholder { color: #555; }
+  .search-clear {
+    background: none; border: none; color: #666; cursor: pointer;
+    font-size: 16px; line-height: 1; display: none; padding: 0;
+  }
+  .search-clear.visible { display: block; }
+
+  .counter {
+    font-size: calc(16px * var(--font-scale)); font-weight: 600;
+    color: rgba(255,255,255,0.55); font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Mode Toggle ── */
+  .mode-toggle {
+    display: flex; gap: 4px;
+    background: rgba(255,255,255,0.06); border-radius: 8px; padding: 3px;
+  }
+  .mode-toggle button {
+    background: none; border: none; color: rgba(255,255,255,0.45);
+    font-size: 12px; padding: 4px 12px; border-radius: 6px;
+    cursor: pointer; transition: all .2s; white-space: nowrap;
+  }
+  .mode-toggle button:hover { color: rgba(255,255,255,0.7); }
+  .mode-toggle button.active {
+    background: rgba(0,229,255,0.15); color: #00e5ff;
+  }
+  .mode-toggle .badge {
+    display: inline-block; background: rgba(255,82,82,0.8);
+    border-radius: 8px; padding: 0 5px; font-size: 10px;
+    margin-left: 3px; color: #fff; min-width: 16px; text-align: center;
+  }
+  .mode-toggle .badge.imported {
+    background: rgba(0,229,255,0.75);
+  }
+
+  .import-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .import-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.72);
+    font-size: 12px;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .import-btn:hover {
+    color: #00e5ff;
+    border-color: rgba(0,229,255,0.35);
+    background: rgba(0,229,255,0.08);
+  }
+  .settings-wrap {
+    position: relative;
+  }
+  .settings-popover {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    width: 240px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(14,14,30,0.96);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+    z-index: 30;
+    display: none;
+  }
+  .settings-popover.visible {
+    display: block;
+  }
+  .settings-title {
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 8px;
+  }
+  .settings-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .settings-actions:last-child {
+    margin-bottom: 0;
+  }
+  .settings-actions .import-btn {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 11px;
+    text-align: center;
+  }
+  .settings-actions .import-btn.active {
+    color: #00e5ff;
+    border-color: rgba(0,229,255,0.35);
+    background: rgba(0,229,255,0.12);
+  }
+  .font-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .font-row label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.68);
+    white-space: nowrap;
+  }
+  .font-row input[type="range"] {
+    width: 100%;
+  }
+  .font-value {
+    min-width: 40px;
+    text-align: right;
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .status-bar {
+    min-height: 18px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    padding: 2px 28px 0;
+  }
+  .status-bar.success { color: rgba(0,229,255,0.92); }
+  .status-bar.error { color: rgba(255,120,120,0.92); }
+
+  /* ── Card ── */
+  .card-container {
+    display: flex; align-items: center; justify-content: center;
+    flex: 1; padding: 0 40px;
+  }
+  .card {
+    width: 100%; max-width: 720px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 50px 40px;
+    text-align: center;
+    transition: transform .3s, box-shadow .3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at center, rgba(0,229,255,0.03) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .card:hover { box-shadow: 0 8px 40px rgba(0,229,255,0.08); }
+
+  .english {
+    font-size: calc(44px * var(--font-scale)); font-weight: 700; line-height: 1.3;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(0,229,255,0.15);
+    transition: opacity .3s, transform .3s;
+    letter-spacing: 0.5px;
+  }
+  .english.slide-in { animation: slideIn .35s ease-out; }
+  .english.prompt-zh {
+    font-size: calc(34px * var(--font-scale));
+    color: rgba(255,215,0,0.95);
+    text-shadow: 0 0 24px rgba(255,215,0,0.12);
+  }
+
+  .speech-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  .speech-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.18);
+    border-radius: 999px;
+    padding: 7px 14px;
+    color: rgba(255,255,255,0.78);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .speech-btn:hover {
+    color: #00e5ff;
+    background: rgba(0,229,255,0.12);
+    border-color: rgba(0,229,255,0.35);
+  }
+  .speech-btn:disabled {
+    cursor: default;
+    color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+  }
+  .speech-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .divider {
+    width: 200px; height: 1px; margin: 28px auto;
+    background: linear-gradient(90deg, transparent, rgba(0,229,255,0.5), transparent);
+  }
+
+  .translation-area {
+    min-height: 50px; display: flex; align-items: center; justify-content: center;
+  }
+  .chinese {
+    font-size: calc(30px * var(--font-scale)); font-weight: 500; color: rgba(255,215,0,0.9);
+    animation: fadeScale .35s ease-out;
+  }
+  .answer-english {
+    font-size: calc(26px * var(--font-scale));
+    font-weight: 600;
+    color: rgba(0,229,255,0.92);
+    animation: fadeScale .35s ease-out;
+    line-height: 1.4;
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .show-btn {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 8px 22px;
+    color: rgba(255,255,255,0.35); font-size: calc(15px * var(--font-scale));
+    cursor: pointer; transition: all .2s; display: flex; align-items: center; gap: 6px;
+  }
+  .show-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+  .show-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* ── Mark Button ── */
+  .mark-area {
+    margin-top: 18px; display: flex; justify-content: center;
+  }
+  .mark-btn {
+    background: none; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 6px 18px;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+    font-size: calc(14px * var(--font-scale)); transition: all .25s;
+  }
+  .mark-btn.unmarked { color: rgba(255,255,255,0.35); }
+  .mark-btn.unmarked:hover { color: rgba(255,82,82,0.8); border-color: rgba(255,82,82,0.4); }
+  .mark-btn.marked {
+    color: #ff5252; border-color: rgba(255,82,82,0.5);
+    background: rgba(255,82,82,0.1);
+  }
+  .mark-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* ── Bottom Controls ── */
+  .bottom-bar {
+    padding: 0 28px 20px;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 20px;
+    margin-bottom: 6px;
+    position: relative;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-app-region: no-drag;
+  }
+  .progress-track::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7px;
+    height: 6px;
+    background: rgba(255,255,255,0.14);
+    border-radius: 999px;
+  }
+  .progress-fill {
+    position: absolute;
+    left: 0;
+    top: 7px;
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #00e5ff, #536dfe);
+    transition: width .3s ease;
+    pointer-events: none;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    background: #00e5ff;
+    box-shadow: 0 0 0 2px rgba(14,14,30,0.95), 0 0 10px rgba(0,229,255,0.35);
+  }
+
+  .controls {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .ctrl-btn {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    transition: color .2s; padding: 4px 8px;
+  }
+  .ctrl-btn:hover { color: #00e5ff; }
+  .ctrl-btn.active { color: #00e5ff; }
+  .ctrl-btn.disabled { color: rgba(255,255,255,0.2); }
+  .ctrl-btn svg { width: 28px; height: 28px; fill: currentColor; }
+  .ctrl-btn.large svg { width: 38px; height: 38px; }
+  .ctrl-btn span { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+  .center-controls { display: flex; align-items: center; gap: 24px; }
+
+  .speed-group {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .speed-group svg { width: 18px; height: 18px; fill: #666; }
+  .speed-group button {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px; padding: 3px 10px;
+    color: rgba(255,255,255,0.5); font-size: 12px; cursor: pointer;
+    transition: all .15s;
+  }
+  .speed-group button:hover { background: rgba(255,255,255,0.12); }
+  .speed-group button.active {
+    background: rgba(0,229,255,0.15); border-color: rgba(0,229,255,0.3);
+    color: #00e5ff;
+  }
+
+  .key-hints {
+    display: flex; gap: 16px; justify-content: center; margin-top: 10px;
+  }
+  .key-hint { display: flex; align-items: center; gap: 4px; }
+  .key-hint kbd {
+    background: rgba(255,255,255,0.08); border-radius: 4px;
+    padding: 1px 7px; font-size: 11px; font-weight: 500;
+    color: rgba(255,255,255,0.5); font-family: inherit;
+  }
+  .key-hint span { font-size: 11px; color: rgba(255,255,255,0.25); }
+
+  /* ── Layout ── */
+  .app-layout {
+    display: flex; flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    padding-bottom: var(--safe-bottom);
+  }
+</style>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+      <span>WordFlash</span>
+    </div>
+
+    <div class="mode-toggle no-drag" id="modeToggle">
+      <button class="active" data-mode="all" onclick="setMode('all')">All</button>
+      <button data-mode="today" onclick="setMode('today')">Today <span class="badge" id="todayCount">0</span></button>
+      <button data-mode="imported" onclick="setMode('imported')">Imported <span class="badge imported" id="importedCount">0</span></button>
+      <button data-mode="marked" onclick="setMode('marked')">Marked <span class="badge" id="markedCount">0</span></button>
+    </div>
+
+    <div class="import-controls no-drag">
+      <div class="settings-wrap">
+        <button class="import-btn" id="settingsToggleBtn" onclick="toggleSettingsPopover(event)">Settings</button>
+        <div class="settings-popover no-drag" id="settingsPopover">
+          <div class="settings-title">Data</div>
+          <div class="settings-actions">
+            <button class="import-btn" onclick="openImportDialog()">CSV</button>
+            <button class="import-btn" onclick="openProgressImportDialog()">Import</button>
+            <button class="import-btn" onclick="exportProgressJson()">Export</button>
+          </div>
+          <div class="settings-title">Text Size</div>
+          <div class="font-row">
+            <label for="fontScaleRange">字号</label>
+            <input type="range" id="fontScaleRange" min="80" max="140" step="5" value="100">
+            <span class="font-value" id="fontScaleValue">100%</span>
+          </div>
+          <div class="settings-title" style="margin-top: 12px;">Direction</div>
+          <div class="settings-actions">
+            <button class="import-btn active" data-direction="en-to-zh" onclick="setStudyDirection('en-to-zh')">英译中</button>
+            <button class="import-btn" data-direction="zh-to-en" onclick="setStudyDirection('zh-to-en')">中译英</button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="csvInput" accept=".csv,text/csv" hidden>
+      <input type="file" id="progressJsonInput" accept=".json,application/json" hidden>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="searchInput" placeholder="Search...">
+        <button class="search-clear" id="searchClear">&times;</button>
+      </div>
+    </div>
+    <div class="counter" id="counter">1 / 0</div>
+  </div>
+
+  <div class="status-bar" id="statusBar"></div>
+
+  <!-- Card -->
+  <div class="card-container">
+    <div class="card no-drag">
+      <div class="english" id="englishText">Loading...</div>
+      <div class="speech-row">
+        <button class="speech-btn no-drag" id="speechBtn" onclick="speakCurrentWord()" aria-label="Read current phrase aloud">
+          <svg viewBox="0 0 24 24"><path d="M3 10v4h4l5 4V6L7 10H3zm13.5 2c0-1.77-1-3.29-2.5-4.03v8.05A4.49 4.49 0 0 0 16.5 12zm0-7v2.06c2.89.86 5 3.54 5 6.94s-2.11 6.08-5 6.94V23c4.01-.91 7-4.49 7-9s-2.99-8.09-7-9z"/></svg>
+          <span>Speak</span>
+        </button>
+      </div>
+      <div class="divider"></div>
+      <div class="translation-area" id="translationArea"></div>
+      <div class="mark-area" id="markArea"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div class="progress-track no-drag" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="controls">
+      <button class="ctrl-btn" id="shuffleBtn" onclick="toggleShuffle()">
+        <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        <span>Shuffle</span>
+      </button>
+
+      <div class="center-controls">
+        <button class="ctrl-btn" onclick="prev()">
+          <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          <span>Prev</span>
+        </button>
+        <button class="ctrl-btn large" id="playBtn" onclick="toggleAutoPlay()">
+          <svg id="playIcon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          <span id="playLabel">Auto</span>
+        </button>
+        <button class="ctrl-btn" onclick="next()">
+          <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          <span>Next</span>
+        </button>
+      </div>
+
+      <div class="speed-group no-drag">
+        <svg viewBox="0 0 24 24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0 0 12 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+        <button class="active" data-speed="2" onclick="setSpeed(2, this)">2s</button>
+        <button data-speed="3" onclick="setSpeed(3, this)">3s</button>
+        <button data-speed="5" onclick="setSpeed(5, this)">5s</button>
+        <button data-speed="8" onclick="setSpeed(8, this)">8s</button>
+      </div>
+    </div>
+
+    <div class="key-hints">
+      <div class="key-hint"><kbd>Space</kbd><span>show/hide</span></div>
+      <div class="key-hint"><kbd>&larr; &rarr;</kbd><span>prev / next</span></div>
+      <div class="key-hint"><kbd>Enter</kbd><span>auto play</span></div>
+      <div class="key-hint"><kbd>S</kbd><span>speak</span></div>
+      <div class="key-hint"><kbd>M</kbd><span>mark word</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──
+let baseWords = [];
+let bundledImportedWords = [];
+let userImportedWords = [];
+let allWords = [];
+let words = [];
+let currentIndex = 0;
+let showTrans = false;
+let isAutoPlaying = false;
+let isShuffled = false;
+let autoInterval = 2;
+let timer = null;
+let markedSet = new Set();
+let viewMode = 'all';
+let statusTimer = null;
+let lastRenderedWordKey = '';
+let activeSpeechRequestId = 0;
+let todayStudiedMap = {};
+let fontScale = 1;
+let isProgressDragging = false;
+let studyDirection = 'en-to-zh';
+let modeWordKeyMap = {
+  all: '',
+  imported: '',
+  today: '',
+  marked: ''
+};
+
+const STORAGE_KEYS = {
+  marked: 'chanapp_marked',
+  state: 'chanapp_state',
+  imported: 'chanapp_imported_words',
+  todayStudied: 'chanapp_today_studied_map',
+  fontScale: 'chanapp_font_scale',
+  legacyMarked: 'wordflash_marked',
+  legacyState: 'wordflash_state'
+};
+
+function getLocalDateKey(dateValue = new Date()) {
+  const year = dateValue.getFullYear();
+  const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+  const day = String(dateValue.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function normalizeStudyMap(input) {
+  if (!input || typeof input !== 'object') return {};
+  const output = {};
+  Object.entries(input).forEach(([dateKey, value]) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+    if (!Array.isArray(value)) return;
+    const uniqueKeys = [...new Set(value.filter((item) => typeof item === 'string' && item.includes('|||')))];
+    if (uniqueKeys.length > 0) output[dateKey] = uniqueKeys;
+  });
+  return output;
+}
+
+function mergeStudyMaps(baseMap, incomingMap) {
+  const normalizedBase = normalizeStudyMap(baseMap);
+  const normalizedIncoming = normalizeStudyMap(incomingMap);
+  const merged = { ...normalizedBase };
+  Object.entries(normalizedIncoming).forEach(([dateKey, keys]) => {
+    merged[dateKey] = [...new Set([...(merged[dateKey] || []), ...keys])];
+  });
+  return merged;
+}
+
+function normalizeModeWordKeyMap(input) {
+  const defaults = { all: '', imported: '', today: '', marked: '' };
+  if (!input || typeof input !== 'object') return defaults;
+  return {
+    all: typeof input.all === 'string' ? input.all : '',
+    imported: typeof input.imported === 'string' ? input.imported : '',
+    today: typeof input.today === 'string' ? input.today : '',
+    marked: typeof input.marked === 'string' ? input.marked : ''
+  };
+}
+
+function getBrowserEnglishVoice() {
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find((voice) => /^en(-|_)/i.test(voice.lang))
+    || voices.find((voice) => /english/i.test(voice.name))
+    || null;
+}
+
+function speakText(text) {
+  const normalizedText = String(text || '').trim();
+  if (!normalizedText || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(normalizedText);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.95;
+  utterance.pitch = 1;
+  const voice = getBrowserEnglishVoice();
+  if (voice) utterance.voice = voice;
+  window.speechSynthesis.speak(utterance);
+}
+
+function cancelActiveSpeech() {
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+function stopSpeaking() {
+  cancelActiveSpeech();
+}
+
+function speakCurrentWord() {
+  if (!words.length) return;
+  if (!canSpeakCurrentWord()) return;
+  speakText(words[currentIndex].en);
+}
+
+function makeWordKey(en, zh) {
+  return `${String(en).trim().toLowerCase()}|||${String(zh).trim()}`;
+}
+
+function normalizeWord(word, extraSet) {
+  const en = String(word.en || '').trim();
+  const zh = String(word.zh || '').trim();
+  if (!en || !zh) return null;
+  const sets = Array.isArray(word.sets) ? [...word.sets] : [];
+  if (extraSet && !sets.includes(extraSet)) sets.push(extraSet);
+  return { en, zh, sets, key: makeWordKey(en, zh) };
+}
+
+function mergeWordCollections(collections) {
+  const merged = [];
+  const indexByKey = new Map();
+  collections.flat().forEach((item) => {
+    const normalized = normalizeWord(item);
+    if (!normalized) return;
+    const existingIndex = indexByKey.get(normalized.key);
+    if (existingIndex === undefined) {
+      indexByKey.set(normalized.key, merged.length);
+      merged.push(normalized);
+      return;
+    }
+    const existing = merged[existingIndex];
+    normalized.sets.forEach((setName) => {
+      if (!existing.sets.includes(setName)) existing.sets.push(setName);
+    });
+  });
+  return merged;
+}
+
+function parseCsvText(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+
+  for (let i = 0; i <= text.length; i += 1) {
+    const char = i === text.length ? '\n' : text[i];
+    if (char === '"') {
+      if (inQuotes && text[i + 1] === '"') {
+        field += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      row.push(field);
+      field = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && text[i + 1] === '\n') continue;
+      row.push(field);
+      if (row.some((cell) => cell.trim() !== '')) rows.push(row);
+      row = [];
+      field = '';
+    } else {
+      field += char;
+    }
+  }
+  return rows;
+}
+
+function rowsToWords(rows, setName = 'imported') {
+  if (!rows.length) return [];
+  const firstRow = rows[0].map((cell) => cell.trim().toLowerCase());
+  const hasHeader = (
+    (firstRow[0] === 'en' || firstRow[0] === 'english') &&
+    (firstRow[1] === 'zh' || firstRow[1] === 'chinese' || firstRow[1] === 'translation')
+  );
+  const startIndex = hasHeader ? 1 : 0;
+  const parsed = [];
+
+  for (let i = startIndex; i < rows.length; i += 1) {
+    const [enRaw = '', zhRaw = ''] = rows[i];
+    const normalized = normalizeWord({ en: enRaw, zh: zhRaw, sets: [setName] });
+    if (normalized) parsed.push(normalized);
+  }
+
+  return mergeWordCollections([parsed]);
+}
+
+function getImportedWords() {
+  return allWords.filter((word) => word.sets.includes('imported'));
+}
+
+function updateModeButtons() {
+  document.querySelectorAll('#modeToggle button').forEach((button) => {
+    button.classList.toggle('active', button.dataset.mode === viewMode);
+  });
+}
+
+function updateImportedCount() {
+  const el = document.getElementById('importedCount');
+  if (el) el.textContent = getImportedWords().length;
+}
+
+function getTodayStudiedKeys() {
+  return todayStudiedMap[getLocalDateKey()] || [];
+}
+
+function updateTodayCount() {
+  const el = document.getElementById('todayCount');
+  if (el) el.textContent = getTodayStudiedKeys().length;
+}
+
+function showStatus(message, tone = '') {
+  const statusBar = document.getElementById('statusBar');
+  if (!statusBar) return;
+  statusBar.textContent = message || '';
+  statusBar.className = `status-bar${tone ? ` ${tone}` : ''}`;
+  if (statusTimer) clearTimeout(statusTimer);
+  if (message) {
+    statusTimer = setTimeout(() => {
+      statusBar.textContent = '';
+      statusBar.className = 'status-bar';
+    }, 3200);
+  }
+}
+
+function clampFontScale(scale) {
+  return Math.min(1.4, Math.max(0.8, Number(scale) || 1));
+}
+
+function applyFontScale(scale, persist = false) {
+  fontScale = clampFontScale(scale);
+  document.documentElement.style.setProperty('--font-scale', String(fontScale));
+
+  const range = document.getElementById('fontScaleRange');
+  const value = document.getElementById('fontScaleValue');
+  const percent = Math.round(fontScale * 100);
+  if (range) range.value = String(percent);
+  if (value) value.textContent = `${percent}%`;
+
+  if (persist) {
+    try { localStorage.setItem(STORAGE_KEYS.fontScale, String(fontScale)); } catch (e) {}
+  }
+}
+
+function loadFontScale() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.fontScale);
+    if (!raw) return;
+    applyFontScale(Number(raw), false);
+  } catch (e) {}
+}
+
+function toggleSettingsPopover(event) {
+  if (event) event.stopPropagation();
+  const popover = document.getElementById('settingsPopover');
+  if (!popover) return;
+  popover.classList.toggle('visible');
+}
+
+function closeSettingsPopover() {
+  const popover = document.getElementById('settingsPopover');
+  if (popover) popover.classList.remove('visible');
+}
+
+function refreshAllWords() {
+  allWords = mergeWordCollections([baseWords, bundledImportedWords, userImportedWords]);
+  migrateLegacyMarkedEntries();
+  updateImportedCount();
+  updateTodayCount();
+  rebuildWordList();
+}
+
+function updateDirectionButtons() {
+  document.querySelectorAll('[data-direction]').forEach((button) => {
+    button.classList.toggle('active', button.dataset.direction === studyDirection);
+  });
+}
+
+function setStudyDirection(direction) {
+  if (!['en-to-zh', 'zh-to-en'].includes(direction) || direction === studyDirection) return;
+  studyDirection = direction;
+  showTrans = false;
+  updateDirectionButtons();
+  render();
+  saveProgress();
+}
+
+function getPromptText(word) {
+  return studyDirection === 'zh-to-en' ? word.zh : word.en;
+}
+
+function getAnswerText(word) {
+  return studyDirection === 'zh-to-en' ? word.en : word.zh;
+}
+
+function getPromptClassName() {
+  return studyDirection === 'zh-to-en' ? 'english prompt-zh' : 'english';
+}
+
+function getAnswerMarkup(word) {
+  if (studyDirection === 'zh-to-en') {
+    return `<div class="answer-english">${word.en}</div>`;
+  }
+  return `<div class="chinese">${word.zh}</div>`;
+}
+
+function canSpeakCurrentWord() {
+  return studyDirection === 'en-to-zh' || showTrans;
+}
+
+// ── Marked Words Persistence ──
+function saveMarked() {
+  try { localStorage.setItem(STORAGE_KEYS.marked, JSON.stringify([...markedSet])); } catch(e) {}
+  updateMarkedCount();
+}
+function loadMarked() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.marked) || localStorage.getItem(STORAGE_KEYS.legacyMarked);
+    if (raw) markedSet = new Set(JSON.parse(raw));
+  } catch(e) {}
+}
+function updateMarkedCount() {
+  const el = document.getElementById('markedCount');
+  if (el) el.textContent = markedSet.size;
+}
+
+function saveTodayStudied() {
+  try {
+    localStorage.setItem(STORAGE_KEYS.todayStudied, JSON.stringify(todayStudiedMap));
+  } catch (e) {}
+  updateTodayCount();
+}
+
+function loadTodayStudied() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.todayStudied);
+    if (!raw) return;
+    todayStudiedMap = normalizeStudyMap(JSON.parse(raw));
+  } catch (e) {
+    todayStudiedMap = {};
+  }
+  updateTodayCount();
+}
+
+function trackTodayStudy(word) {
+  if (!word || !word.key) return;
+  const todayKey = getLocalDateKey();
+  const list = todayStudiedMap[todayKey] || [];
+  if (list.includes(word.key)) return;
+  todayStudiedMap[todayKey] = [...list, word.key];
+  saveTodayStudied();
+}
+
+function migrateLegacyMarkedEntries() {
+  if (!markedSet.size || !allWords.length) {
+    updateMarkedCount();
+    return;
+  }
+  const migrated = new Set();
+  markedSet.forEach((entry) => {
+    if (entry.includes('|||')) {
+      migrated.add(entry);
+      return;
+    }
+    allWords.forEach((word) => {
+      if (word.en === entry) migrated.add(word.key);
+    });
+  });
+  markedSet = migrated;
+  saveMarked();
+}
+
+function toggleMark() {
+  if (words.length === 0) return;
+  const word = words[currentIndex];
+  if (markedSet.has(word.key)) {
+    markedSet.delete(word.key);
+  } else {
+    markedSet.add(word.key);
+  }
+  saveMarked();
+  if (viewMode === 'marked') {
+    rebuildWordList();
+    if (currentIndex >= words.length) currentIndex = Math.max(0, words.length - 1);
+  }
+  render();
+}
+
+function rememberCurrentModePosition() {
+  if (!words.length) return;
+  const word = words[currentIndex];
+  if (!word || !word.key) return;
+  modeWordKeyMap[viewMode] = word.key;
+}
+
+function restoreModePosition(mode) {
+  const rememberedKey = modeWordKeyMap[mode];
+  if (!rememberedKey || !words.length) {
+    currentIndex = 0;
+    return;
+  }
+  const idx = words.findIndex((w) => w.key === rememberedKey);
+  currentIndex = idx >= 0 ? idx : 0;
+}
+
+function setMode(mode) {
+  if (mode === viewMode) return;
+  rememberCurrentModePosition();
+  viewMode = mode;
+  updateModeButtons();
+  rebuildWordList();
+  restoreModePosition(mode);
+  showTrans = false;
+  render();
+  saveProgress();
+}
+
+function rebuildWordList() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let base = isShuffled ? [...allWords].sort(() => Math.random() - 0.5) : [...allWords];
+
+  if (viewMode === 'today') {
+    const todaySet = new Set(getTodayStudiedKeys());
+    base = base.filter((w) => todaySet.has(w.key));
+  } else if (viewMode === 'imported') {
+    base = base.filter((w) => w.sets.includes('imported'));
+  } else if (viewMode === 'marked') {
+    base = base.filter((w) => markedSet.has(w.key));
+  }
+  if (q) {
+    base = base.filter(w => w.en.toLowerCase().includes(q) || w.zh.includes(q));
+  }
+  words = base;
+}
+
+// ── Persistence ──
+function saveProgress() {
+  const word = words[currentIndex];
+  if (word && word.key) modeWordKeyMap[viewMode] = word.key;
+  const state = {
+    currentWordKey: word ? word.key : '',
+    currentWord: word ? word.en : '',
+    currentIndex: currentIndex,
+    autoInterval: autoInterval,
+    studyDirection: studyDirection,
+    viewMode: viewMode,
+    modeWordKeyMap: modeWordKeyMap,
+    timestamp: Date.now()
+  };
+  try { localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(state)); } catch(e) {}
+}
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.state) || localStorage.getItem(STORAGE_KEYS.legacyState);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    modeWordKeyMap = normalizeModeWordKeyMap(state.modeWordKeyMap);
+
+    if (state.autoInterval) {
+      autoInterval = state.autoInterval;
+      document.querySelectorAll('.speed-group button').forEach(b => {
+        b.classList.toggle('active', Number(b.dataset.speed) === autoInterval);
+      });
+    }
+    if (state.studyDirection === 'zh-to-en' || state.studyDirection === 'en-to-zh') {
+      studyDirection = state.studyDirection;
+    }
+
+    const hasImported = getImportedWords().length > 0;
+    const hasToday = getTodayStudiedKeys().length > 0;
+    if (state.viewMode === 'today' && hasToday) {
+      viewMode = 'today';
+    } else if (state.viewMode === 'imported' && hasImported) {
+      viewMode = 'imported';
+    } else if (state.viewMode === 'marked' && markedSet.size > 0) {
+      viewMode = 'marked';
+    }
+    updateModeButtons();
+    updateDirectionButtons();
+    rebuildWordList();
+
+    const rememberedKey = modeWordKeyMap[viewMode];
+    if (rememberedKey) {
+      const idx = words.findIndex((w) => w.key === rememberedKey);
+      if (idx >= 0) { currentIndex = idx; return; }
+    }
+
+    if (state.currentWordKey) {
+      const idx = words.findIndex((w) => w.key === state.currentWordKey);
+      if (idx >= 0) { currentIndex = idx; return; }
+    }
+    if (state.currentWord) {
+      const idx = words.findIndex(w => w.en === state.currentWord);
+      if (idx >= 0) { currentIndex = idx; return; }
+    }
+    if (typeof state.currentIndex === 'number' && state.currentIndex < words.length) {
+      currentIndex = state.currentIndex;
+    }
+  } catch(e) {}
+}
+
+// ── Load Data ──
+function loadUserImportedWords() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.imported);
+    if (!raw) return;
+    userImportedWords = rowsToWords(JSON.parse(raw).map((item) => [item.en, item.zh]));
+  } catch (e) {
+    userImportedWords = [];
+  }
+}
+
+function saveUserImportedWords() {
+  try {
+    localStorage.setItem(STORAGE_KEYS.imported, JSON.stringify(userImportedWords.map(({ en, zh }) => ({ en, zh }))));
+  } catch (e) {}
+}
+
+async function loadBundledCsv() {
+  try {
+    const res = await fetch('oralenglish.csv', { cache: 'force-cache' });
+    if (!res.ok) return [];
+    const raw = await res.text();
+    return rowsToWords(parseCsvText(raw));
+  } catch (e) {
+    console.error('Failed to load oralenglish.csv:', e);
+    return [];
+  }
+}
+
+async function loadWords() {
+  try {
+    const res = await fetch('words.json', { cache: 'force-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.text();
+    baseWords = mergeWordCollections([JSON.parse(raw)]);
+    bundledImportedWords = await loadBundledCsv();
+    loadUserImportedWords();
+    loadMarked();
+    loadTodayStudied();
+    refreshAllWords();
+    loadProgress();
+    updateDirectionButtons();
+    render();
+  } catch(e) {
+    console.error('Failed to load words.json:', e);
+    document.getElementById('englishText').textContent = '词汇加载失败，请检查网络';
+  }
+}
+
+// ── Render ──
+function render() {
+  const el = document.getElementById('englishText');
+  const area = document.getElementById('translationArea');
+  const markArea = document.getElementById('markArea');
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progressFill');
+  const speechBtn = document.getElementById('speechBtn');
+
+  if (words.length === 0) {
+    lastRenderedWordKey = '';
+    stopSpeaking();
+    el.textContent = viewMode === 'marked'
+      ? 'No marked words yet'
+      : viewMode === 'today'
+        ? 'No words studied today'
+      : viewMode === 'imported'
+        ? 'No imported words yet'
+        : 'No words found';
+    area.innerHTML = '';
+    markArea.innerHTML = '';
+    counter.textContent = '0 / 0';
+    progress.style.width = '0%';
+    if (speechBtn) speechBtn.disabled = true;
+    return;
+  }
+
+  const word = words[currentIndex];
+  const isMarked = markedSet.has(word.key);
+  const wordChanged = word.key !== lastRenderedWordKey;
+
+  el.classList.remove('slide-in');
+  void el.offsetWidth;
+  el.classList.add('slide-in');
+  el.className = getPromptClassName();
+  el.textContent = getPromptText(word);
+  if (speechBtn) speechBtn.disabled = !canSpeakCurrentWord();
+
+  if (showTrans) {
+    area.innerHTML = getAnswerMarkup(word);
+  } else {
+    area.innerHTML = `
+      <button class="show-btn" onclick="toggleTranslation()">
+        <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        Show Answer
+      </button>`;
+  }
+
+  if (isMarked) {
+    markArea.innerHTML = `
+      <button class="mark-btn marked" onclick="toggleMark()">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        Marked
+      </button>`;
+  } else {
+    markArea.innerHTML = `
+      <button class="mark-btn unmarked" onclick="toggleMark()">
+        <svg viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>
+        Mark
+      </button>`;
+  }
+
+  counter.textContent = `${currentIndex + 1} / ${words.length}`;
+  progress.style.width = `${((currentIndex + 1) / words.length) * 100}%`;
+
+  if (wordChanged) {
+    lastRenderedWordKey = word.key;
+    trackTodayStudy(word);
+    speakCurrentWord();
+  }
+}
+
+// ── Navigation ──
+function seekByProgressClientX(clientX) {
+  const track = document.getElementById('progressTrack');
+  if (!track || words.length === 0) return;
+  const rect = track.getBoundingClientRect();
+  if (!rect.width) return;
+  const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  const target = Math.min(words.length - 1, Math.max(0, Math.round(ratio * (words.length - 1))));
+  if (target === currentIndex) return;
+  currentIndex = target;
+  showTrans = false;
+  render();
+  saveProgress();
+}
+
+function next() {
+  if (words.length === 0) return;
+  showTrans = false;
+  currentIndex = (currentIndex + 1) % words.length;
+  render();
+  saveProgress();
+}
+
+function prev() {
+  if (words.length === 0) return;
+  showTrans = false;
+  currentIndex = (currentIndex - 1 + words.length) % words.length;
+  render();
+  saveProgress();
+}
+
+function toggleTranslation() {
+  showTrans = !showTrans;
+  render();
+}
+
+// ── Auto Play ──
+function toggleAutoPlay() {
+  isAutoPlaying = !isAutoPlaying;
+  updatePlayButton();
+  if (isAutoPlaying) {
+    startTimer();
+  } else {
+    stopTimer();
+  }
+}
+
+function startTimer() {
+  stopTimer();
+  timer = setInterval(() => {
+    if (showTrans) {
+      next();
+    } else {
+      showTrans = true;
+      render();
+    }
+  }, autoInterval * 1000);
+}
+
+function stopTimer() {
+  if (timer) { clearInterval(timer); timer = null; }
+}
+
+function updatePlayButton() {
+  const btn = document.getElementById('playBtn');
+  const icon = document.getElementById('playIcon');
+  const label = document.getElementById('playLabel');
+
+  if (isAutoPlaying) {
+    btn.classList.add('active');
+    icon.innerHTML = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>';
+    label.textContent = 'Pause';
+  } else {
+    btn.classList.remove('active');
+    icon.innerHTML = '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>';
+    label.textContent = 'Auto';
+  }
+}
+
+function setSpeed(sec, el) {
+  autoInterval = sec;
+  document.querySelectorAll('.speed-group button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (isAutoPlaying) startTimer();
+  saveProgress();
+}
+
+// ── Shuffle ──
+function toggleShuffle() {
+  isShuffled = !isShuffled;
+  const btn = document.getElementById('shuffleBtn');
+
+  if (isShuffled) {
+    btn.classList.add('active');
+  } else {
+    btn.classList.remove('active');
+  }
+  rebuildWordList();
+  currentIndex = 0;
+  showTrans = false;
+  render();
+  saveProgress();
+}
+
+function openImportDialog() {
+  closeSettingsPopover();
+  document.getElementById('csvInput').click();
+}
+
+function openProgressImportDialog() {
+  closeSettingsPopover();
+  document.getElementById('progressJsonInput').click();
+}
+
+function buildProgressBundle() {
+  const currentWord = words[currentIndex];
+  return {
+    app: 'wordflash',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    state: {
+      currentWordKey: currentWord ? currentWord.key : '',
+      currentWord: currentWord ? currentWord.en : '',
+      currentIndex,
+      autoInterval,
+      studyDirection,
+      viewMode,
+      timestamp: Date.now()
+    },
+    marked: [...markedSet],
+    importedWords: userImportedWords.map(({ en, zh }) => ({ en, zh })),
+    todayStudiedMap
+  };
+}
+
+function downloadJsonFile(filename, objectValue) {
+  const blob = new Blob([JSON.stringify(objectValue, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function exportProgressJson() {
+  closeSettingsPopover();
+  const dateKey = getLocalDateKey().replace(/-/g, '');
+  const filename = `chan-x-progress-${dateKey}.json`;
+  downloadJsonFile(filename, buildProgressBundle());
+  showStatus(`已导出进度文件：${filename}`, 'success');
+}
+
+function applyProgressBundle(bundle, mode = 'overwrite') {
+  if (!bundle || typeof bundle !== 'object') {
+    throw new Error('JSON 结构不正确');
+  }
+
+  const importedWordsRaw = Array.isArray(bundle.importedWords) ? bundle.importedWords : [];
+  const normalizedImported = rowsToWords(
+    importedWordsRaw.map((item) => [item && item.en ? item.en : '', item && item.zh ? item.zh : ''])
+  );
+  userImportedWords = mode === 'merge'
+    ? mergeWordCollections([userImportedWords, normalizedImported])
+    : normalizedImported;
+  saveUserImportedWords();
+
+  const markedRaw = Array.isArray(bundle.marked) ? bundle.marked : [];
+  const importedMarked = markedRaw.filter((item) => typeof item === 'string' && item.includes('|||'));
+  markedSet = mode === 'merge'
+    ? new Set([...markedSet, ...importedMarked])
+    : new Set(importedMarked);
+  saveMarked();
+
+  todayStudiedMap = mode === 'merge'
+    ? mergeStudyMaps(todayStudiedMap, bundle.todayStudiedMap || {})
+    : normalizeStudyMap(bundle.todayStudiedMap || {});
+  saveTodayStudied();
+
+  const importedState = bundle.state && typeof bundle.state === 'object' ? bundle.state : null;
+  if (importedState && mode === 'overwrite') {
+    localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(importedState));
+  }
+
+  refreshAllWords();
+  currentIndex = 0;
+  showTrans = false;
+  if (mode === 'overwrite') {
+    loadProgress();
+  } else {
+    saveProgress();
+  }
+  render();
+}
+
+async function importProgressJsonFile(file) {
+  const raw = await file.text();
+  const parsed = JSON.parse(raw);
+  const overwrite = window.confirm('导入模式：确定=覆盖当前进度；取消=合并进度');
+  const mode = overwrite ? 'overwrite' : 'merge';
+  applyProgressBundle(parsed, mode);
+  showStatus(`已导入进度（${mode === 'overwrite' ? '覆盖' : '合并'}）：${file.name}`, 'success');
+}
+
+async function importCsvFile(file) {
+  const text = await file.text();
+  const parsedWords = rowsToWords(parseCsvText(text));
+  if (!parsedWords.length) {
+    showStatus('CSV 没有识别到可导入的 en,zh 词条', 'error');
+    return;
+  }
+  const beforeCount = getImportedWords().length;
+  userImportedWords = mergeWordCollections([userImportedWords, parsedWords]);
+  saveUserImportedWords();
+  refreshAllWords();
+  currentIndex = 0;
+  showTrans = false;
+  render();
+  saveProgress();
+  const afterCount = getImportedWords().length;
+  showStatus(`已导入 ${file.name}，新增 ${afterCount - beforeCount} 条扩充词汇`, 'success');
+}
+
+// ── Search ──
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+const csvInput = document.getElementById('csvInput');
+const progressJsonInput = document.getElementById('progressJsonInput');
+const fontScaleRange = document.getElementById('fontScaleRange');
+const settingsPopover = document.getElementById('settingsPopover');
+const progressTrack = document.getElementById('progressTrack');
+
+loadFontScale();
+applyFontScale(fontScale, false);
+
+if (fontScaleRange) {
+  fontScaleRange.addEventListener('input', (event) => {
+    const percent = Number(event.target.value || 100);
+    applyFontScale(percent / 100, true);
+  });
+}
+
+document.addEventListener('click', (event) => {
+  if (!settingsPopover || !settingsPopover.classList.contains('visible')) return;
+  const settingsWrap = event.target.closest('.settings-wrap');
+  if (!settingsWrap) closeSettingsPopover();
+});
+
+if (progressTrack) {
+  progressTrack.addEventListener('pointerdown', (event) => {
+    isProgressDragging = true;
+    seekByProgressClientX(event.clientX);
+    if (typeof progressTrack.setPointerCapture === 'function') {
+      progressTrack.setPointerCapture(event.pointerId);
+    }
+    event.preventDefault();
+  });
+  progressTrack.addEventListener('pointermove', (event) => {
+    if (!isProgressDragging) return;
+    seekByProgressClientX(event.clientX);
+  });
+  const stopProgressDrag = () => {
+    isProgressDragging = false;
+  };
+  progressTrack.addEventListener('pointerup', stopProgressDrag);
+  progressTrack.addEventListener('pointercancel', stopProgressDrag);
+}
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  searchClear.classList.toggle('visible', q.length > 0);
+  rebuildWordList();
+  currentIndex = 0;
+  showTrans = false;
+  render();
+  saveProgress();
+});
+
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchClear.classList.remove('visible');
+  rebuildWordList();
+  currentIndex = 0;
+  showTrans = false;
+  render();
+  saveProgress();
+});
+
+csvInput.addEventListener('change', async (event) => {
+  const [file] = event.target.files || [];
+  if (!file) return;
+  try {
+    await importCsvFile(file);
+  } catch (error) {
+    console.error('Failed to import CSV:', error);
+    showStatus(`导入失败: ${file.name}`, 'error');
+  } finally {
+    event.target.value = '';
+  }
+});
+
+progressJsonInput.addEventListener('change', async (event) => {
+  const [file] = event.target.files || [];
+  if (!file) return;
+  try {
+    await importProgressJsonFile(file);
+  } catch (error) {
+    console.error('Failed to import progress JSON:', error);
+    showStatus(`进度导入失败: ${file.name}`, 'error');
+  } finally {
+    event.target.value = '';
+  }
+});
+
+// ── Keyboard ──
+document.addEventListener('keydown', e => {
+  if (document.activeElement && ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+  switch(e.code) {
+    case 'ArrowRight': next(); e.preventDefault(); break;
+    case 'ArrowLeft': prev(); e.preventDefault(); break;
+    case 'Space': toggleTranslation(); e.preventDefault(); break;
+    case 'Enter': toggleAutoPlay(); e.preventDefault(); break;
+    case 'KeyS': speakCurrentWord(); e.preventDefault(); break;
+    case 'KeyM': toggleMark(); e.preventDefault(); break;
+    case 'KeyD': setStudyDirection(studyDirection === 'en-to-zh' ? 'zh-to-en' : 'en-to-zh'); e.preventDefault(); break;
+  }
+});
+
+// ── Init ──
+// Warm up speech voices early (Chrome/iOS load them async)
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+loadWords();
+
+// Register service worker for offline use (PWA)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((err) => {
+      console.warn('Service worker registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
