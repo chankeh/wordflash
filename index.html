@@ -233,6 +233,42 @@
     text-shadow: 0 0 24px rgba(255,215,0,0.12);
   }
 
+  /* ── Word Index Badge ── */
+  .word-index {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.22);
+    border-radius: 999px;
+    padding: 3px 12px;
+    color: rgba(0,229,255,0.85);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+  .word-index svg { width: 12px; height: 12px; fill: currentColor; }
+
+  /* ── Phonetic (American IPA) ── */
+  .phonetic {
+    margin-top: 10px;
+    font-size: calc(20px * var(--font-scale));
+    font-weight: 400;
+    color: rgba(0,229,255,0.78);
+    font-family: 'Segoe UI', 'Charis SIL', 'Doulos SIL', 'Gentium Plus', 'Lucida Sans Unicode', monospace;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    min-height: 26px;
+    transition: opacity .3s;
+  }
+  .phonetic.empty { min-height: 0; }
+  .phonetic .ipa-slash {
+    color: rgba(0,229,255,0.45);
+    margin: 0 2px;
+  }
+
   .speech-row {
     display: flex;
     justify-content: center;
@@ -481,7 +517,12 @@
   <!-- Card -->
   <div class="card-container">
     <div class="card no-drag">
+      <div class="word-index" id="wordIndex" style="display:none;">
+        <svg viewBox="0 0 24 24"><path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2zM3 3v18l3-3h15V3H3zm17 14H5.5L4 18.5V5h16v12z"/></svg>
+        <span id="wordIndexText">#1</span>
+      </div>
       <div class="english" id="englishText">Loading...</div>
+      <div class="phonetic empty" id="phoneticText"></div>
       <div class="speech-row">
         <button class="speech-btn no-drag" id="speechBtn" onclick="speakCurrentWord()" aria-label="Read current phrase aloud">
           <svg viewBox="0 0 24 24"><path d="M3 10v4h4l5 4V6L7 10H3zm13.5 2c0-1.77-1-3.29-2.5-4.03v8.05A4.49 4.49 0 0 0 16.5 12zm0-7v2.06c2.89.86 5 3.54 5 6.94s-2.11 6.08-5 6.94V23c4.01-.91 7-4.49 7-9s-2.99-8.09-7-9z"/></svg>
@@ -560,6 +601,7 @@ let todayStudiedMap = {};
 let fontScale = 1;
 let isProgressDragging = false;
 let studyDirection = 'en-to-zh';
+let phoneticsMap = {};
 let modeWordKeyMap = {
   all: '',
   imported: '',
@@ -849,7 +891,11 @@ function getPromptClassName() {
 
 function getAnswerMarkup(word) {
   if (studyDirection === 'zh-to-en') {
-    return `<div class="answer-english">${word.en}</div>`;
+    const ipa = getPhoneticForWord(word);
+    const phoneticHtml = ipa
+      ? `<div class="phonetic" style="margin-top:8px;"><span class="ipa-slash">/</span>${ipa}<span class="ipa-slash">/</span></div>`
+      : '';
+    return `<div class="answer-english">${word.en}</div>${phoneticHtml}`;
   }
   return `<div class="chinese">${word.zh}</div>`;
 }
@@ -1086,6 +1132,7 @@ async function loadWords() {
     const raw = await res.text();
     baseWords = mergeWordCollections([JSON.parse(raw)]);
     bundledImportedWords = await loadBundledCsv();
+    await loadPhonetics();
     loadUserImportedWords();
     loadMarked();
     loadTodayStudied();
@@ -1099,6 +1146,26 @@ async function loadWords() {
   }
 }
 
+async function loadPhonetics() {
+  try {
+    const res = await fetch('phonetics.json', { cache: 'force-cache' });
+    if (!res.ok) return;
+    phoneticsMap = await res.json();
+  } catch (e) {
+    console.warn('Failed to load phonetics.json:', e);
+    phoneticsMap = {};
+  }
+}
+
+function getPhoneticForWord(word) {
+  if (!word || !word.en) return '';
+  // Try exact match first, then case-insensitive
+  if (phoneticsMap[word.en]) return phoneticsMap[word.en];
+  const lowerEn = word.en.toLowerCase();
+  const matchedKey = Object.keys(phoneticsMap).find((k) => k.toLowerCase() === lowerEn);
+  return matchedKey ? phoneticsMap[matchedKey] : '';
+}
+
 // ── Render ──
 function render() {
   const el = document.getElementById('englishText');
@@ -1107,10 +1174,15 @@ function render() {
   const counter = document.getElementById('counter');
   const progress = document.getElementById('progressFill');
   const speechBtn = document.getElementById('speechBtn');
+  const wordIndex = document.getElementById('wordIndex');
+  const wordIndexText = document.getElementById('wordIndexText');
+  const phoneticEl = document.getElementById('phoneticText');
 
   if (words.length === 0) {
     lastRenderedWordKey = '';
     stopSpeaking();
+    if (wordIndex) wordIndex.style.display = 'none';
+    if (phoneticEl) { phoneticEl.textContent = ''; phoneticEl.classList.add('empty'); }
     el.textContent = viewMode === 'marked'
       ? 'No marked words yet'
       : viewMode === 'today'
@@ -1130,12 +1202,38 @@ function render() {
   const isMarked = markedSet.has(word.key);
   const wordChanged = word.key !== lastRenderedWordKey;
 
+  // Sequence number badge
+  if (wordIndex && wordIndexText) {
+    wordIndex.style.display = 'inline-flex';
+    wordIndexText.textContent = `#${currentIndex + 1}`;
+  }
+
   el.classList.remove('slide-in');
   void el.offsetWidth;
   el.classList.add('slide-in');
   el.className = getPromptClassName();
   el.textContent = getPromptText(word);
   if (speechBtn) speechBtn.disabled = !canSpeakCurrentWord();
+
+  // Phonetic display:
+  // en-to-zh: always show below the english prompt
+  // zh-to-en: only show when answer is revealed (handled in getAnswerMarkup)
+  if (phoneticEl) {
+    if (studyDirection === 'en-to-zh') {
+      const ipa = getPhoneticForWord(word);
+      if (ipa) {
+        phoneticEl.innerHTML = `<span class="ipa-slash">/</span>${ipa}<span class="ipa-slash">/</span>`;
+        phoneticEl.classList.remove('empty');
+      } else {
+        phoneticEl.textContent = '';
+        phoneticEl.classList.add('empty');
+      }
+    } else {
+      // zh-to-en: hide phonetic here (it shows with the answer)
+      phoneticEl.textContent = '';
+      phoneticEl.classList.add('empty');
+    }
+  }
 
   if (showTrans) {
     area.innerHTML = getAnswerMarkup(word);

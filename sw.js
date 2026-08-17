@@ -1,11 +1,12 @@
 // Simple cache-first service worker for offline PWA use.
-const CACHE_NAME = 'wordflash-v1';
+const CACHE_NAME = 'wordflash-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './words.json',
   './oralenglish.csv',
+  './phonetics.json',
   './icon-192.png',
   './icon-512.png'
 ];
