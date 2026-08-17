@@ -1,5 +1,5 @@
 // Service worker: network-first for HTML, cache-first for assets.
-const CACHE_NAME = 'wordflash-v3';
+const CACHE_NAME = 'wordflash-v4';
 const ASSETS = [
   './',
   './index.html',
