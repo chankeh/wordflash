@@ -76,6 +76,11 @@
     font-size: calc(16px * var(--font-scale)); font-weight: 600;
     color: rgba(255,255,255,0.55); font-variant-numeric: tabular-nums;
   }
+  .version-tag {
+    font-size: 10px; font-weight: 600; color: rgba(0,229,255,0.4);
+    padding: 1px 6px; border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 4px; margin-left: 6px; white-space: nowrap;
+  }
 
   /* ── Mode Toggle ── */
   .mode-toggle {
@@ -510,6 +515,7 @@
       </div>
     </div>
     <div class="counter" id="counter">1 / 0</div>
+    <div class="version-tag" title="Version">v2.1</div>
   </div>
 
   <div class="status-bar" id="statusBar"></div>
