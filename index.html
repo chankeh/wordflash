@@ -673,11 +673,50 @@ function getBrowserEnglishVoice() {
     || null;
 }
 
+// ── Speech Engine ──
+// Dual mode: Electron (Mac) uses native `say` command; browser/PWA uses Web Speech API.
+const isElectronMac = (function () {
+  try {
+    return typeof require === 'function'
+      && typeof process === 'object'
+      && process.platform === 'darwin';
+  } catch (_) { return false; }
+})();
+
+let activeSayProcess = null;
+
 function speakText(text) {
   const normalizedText = String(text || '').trim();
-  if (!normalizedText || !('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(normalizedText);
+  if (!normalizedText) return;
+
+  // Always cancel any in-flight speech first
+  cancelActiveSpeech();
+
+  if (isElectronMac) {
+    try {
+      const { spawn } = require('child_process');
+      // Samantha = high-quality built-in American English voice on macOS
+      // Rate ~180 wpm (slightly slower than default 200 for clarity)
+      activeSayProcess = spawn('say', ['-v', 'Samantha', '-r', '185', normalizedText], { stdio: 'ignore' });
+      activeSayProcess.on('error', () => {
+        // `say` failed — fall back to Web Speech API
+        activeSayProcess = null;
+        speakViaWebAPI(normalizedText);
+      });
+      activeSayProcess.on('exit', () => { activeSayProcess = null; });
+      return;
+    } catch (e) {
+      activeSayProcess = null;
+      // fall through to Web Speech API
+    }
+  }
+
+  speakViaWebAPI(normalizedText);
+}
+
+function speakViaWebAPI(text) {
+  if (!('speechSynthesis' in window)) return;
+  const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'en-US';
   utterance.rate = 0.95;
   utterance.pitch = 1;
@@ -687,6 +726,10 @@ function speakText(text) {
 }
 
 function cancelActiveSpeech() {
+  if (activeSayProcess) {
+    try { activeSayProcess.kill(); } catch (_) {}
+    activeSayProcess = null;
+  }
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
