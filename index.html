@@ -66,6 +66,7 @@
     font-size: 14px; width: 140px;
   }
   .search-box input::placeholder { color: #555; }
+  .scene-filter { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 6px 8px; font-size: 12px; max-width: 140px; }
   .search-clear {
     background: none; border: none; color: #666; cursor: pointer;
     font-size: 16px; line-height: 1; display: none; padding: 0;
@@ -255,6 +256,7 @@
     margin-bottom: 14px;
   }
   .word-index svg { width: 12px; height: 12px; fill: currentColor; }
+  .word-scene { margin-left: 6px; color: rgba(0,229,255,0.75); }
 
   /* ── Phonetic (American IPA) ── */
   .phonetic {
@@ -508,6 +510,12 @@
       </div>
       <input type="file" id="csvInput" accept=".csv,text/csv" hidden>
       <input type="file" id="progressJsonInput" accept=".json,application/json" hidden>
+      <select class="scene-filter" id="sceneFilter" aria-label="Filter by scene" onchange="setSceneMode(this.value)">
+        <option value="all">All scenes</option><option value="greetings">Greetings</option><option value="food">Food &amp; drink</option>
+        <option value="travel">Travel</option><option value="work">Work</option><option value="relationships">Relationships</option>
+        <option value="feelings">Feelings</option><option value="opinions">Opinions</option><option value="help">Requests &amp; thanks</option>
+        <option value="health">Health &amp; rest</option><option value="shopping">Shopping</option><option value="everyday">Other</option>
+      </select>
       <div class="search-box">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
         <input type="text" id="searchInput" placeholder="Search...">
@@ -526,6 +534,7 @@
       <div class="word-index" id="wordIndex" style="display:none;">
         <svg viewBox="0 0 24 24"><path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2zM3 3v18l3-3h15V3H3zm17 14H5.5L4 18.5V5h16v12z"/></svg>
         <span id="wordIndexText">#1</span>
+        <span class="word-scene" id="wordSceneText"></span>
       </div>
       <div class="english" id="englishText">Loading...</div>
       <div class="phonetic empty" id="phoneticText"></div>
@@ -600,6 +609,7 @@ let autoInterval = 2;
 let timer = null;
 let markedSet = new Set();
 let viewMode = 'all';
+let sceneMode = 'all';
 let statusTimer = null;
 let lastRenderedWordKey = '';
 let activeSpeechRequestId = 0;
@@ -1060,9 +1070,45 @@ function setMode(mode) {
   saveProgress();
 }
 
+function setSceneMode(mode) {
+  sceneMode = mode;
+  rebuildWordList();
+  currentIndex = 0;
+  showTrans = false;
+  render();
+}
+
+function getPhraseScene(word) {
+  const text = `${word.en} ${word.zh}`.toLowerCase();
+  const rules = [
+    ['greetings', /hello|hey there|how are you|how have you been|how are things|come on in|long time no see|你好|近况/],
+    ['food', /eat|food|drink|coffee|takeout|hungry|thirsty|meal|吃|喝|咖啡|外卖|口渴/],
+    ['travel', /where|drive|ride|trip|travel|出发|去哪|旅行|送你/],
+    ['work', /work|boss|meeting|deal|business|job|office|time off|工作|老板|开会|办|忙/],
+    ['relationships', /love|friend|date|kiss|miss you|break up|affair|jealous|爱|朋友|分手|亲|想你|嫉妒/],
+    ['feelings', /happy|sad|angry|sorry|afraid|nervous|excited|worry|embarrass|开心|难过|生气|抱歉|紧张|担心/],
+    ['opinions', /think|mean|say|agree|right|wrong|sense|mind|point|想法|觉得|意思|同意|道理/],
+    ['help', /help|thank|please|favor|borrow|lend|thanks|帮助|谢谢|麻烦|借|请/],
+    ['health', /sick|pain|doctor|medication|symptom|tired|sleep|rest|发烧|生病|药|症状|累|睡觉|休息/],
+    ['shopping', /money|price|cost|buy|bargain|penny|expensive|cheap|钱|价格|买|划算|贵|便宜/]
+  ];
+  const match = rules.find(([, pattern]) => pattern.test(text));
+  return match ? match[0] : 'everyday';
+}
+
+function getPhraseSceneLabel(word) {
+  const labels = {
+    greetings: '问候', food: '饮食', travel: '出行', work: '工作',
+    relationships: '人际关系', feelings: '情绪', opinions: '观点',
+    help: '请求与感谢', health: '健康与休息', shopping: '购物', everyday: '日常'
+  };
+  return labels[getPhraseScene(word)] || labels.everyday;
+}
+
 function rebuildWordList() {
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   let base = isShuffled ? [...allWords].sort(() => Math.random() - 0.5) : [...allWords];
+  if (sceneMode !== 'all') base = base.filter((word) => getPhraseScene(word) === sceneMode);
 
   if (viewMode === 'today') {
     const todaySet = new Set(getTodayStudiedKeys());
@@ -1225,6 +1271,7 @@ function render() {
   const speechBtn = document.getElementById('speechBtn');
   const wordIndex = document.getElementById('wordIndex');
   const wordIndexText = document.getElementById('wordIndexText');
+  const wordSceneText = document.getElementById('wordSceneText');
   const phoneticEl = document.getElementById('phoneticText');
 
   if (words.length === 0) {
@@ -1255,6 +1302,7 @@ function render() {
   if (wordIndex && wordIndexText) {
     wordIndex.style.display = 'inline-flex';
     wordIndexText.textContent = `#${currentIndex + 1}`;
+    if (wordSceneText) wordSceneText.textContent = `· ${getPhraseSceneLabel(word)}`;
   }
 
   el.classList.remove('slide-in');
