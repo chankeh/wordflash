@@ -10072,11 +10072,735 @@
     "zh": "别自欺欺人了"
   },
   {
+    "en": "Can I give you a hug?",
+    "zh": "我能抱一抱你吗?"
+  },
+  {
+    "en": "i'm not giving up",
+    "zh": "我不是要放弃"
+  },
+  {
+    "en": "It matters to me",
+    "zh": "对我来说重要"
+  },
+  {
+    "en": "Life is a journey",
+    "zh": "人生是一场旅行嘛"
+  },
+  {
+    "en": "I'm broke",
+    "zh": "我没钱了"
+  },
+  {
+    "en": "This is on me",
+    "zh": "我来负责"
+  },
+  {
+    "en": "I messed up",
+    "zh": "我搞砸了"
+  },
+  {
+    "en": "Pull yourself together",
+    "zh": "你要振作起来"
+  },
+  {
+    "en": "I have faith in you",
+    "zh": "我对你有信心"
+  },
+  {
+    "en": "Don't be naive",
+    "zh": "别天真了"
+  },
+  {
+    "en": "I'll see you when I see you",
+    "zh": "有缘再见"
+  },
+  {
+    "en": "Let nature take its course",
+    "zh": "顺其自然吧"
+  },
+  {
+    "en": "Anything's possible",
+    "zh": "一切皆有可能"
+  },
+  {
+    "en": "It's just a formality",
+    "zh": "只是走个形式"
+  },
+  {
+    "en": "Pick your brain",
+    "zh": "向你请教一下"
+  },
+  {
+    "en": "What have you been up to?",
+    "zh": "最近在忙什么?"
+  },
+  {
+    "en": "i'm out of practice",
+    "zh": "我生疏了"
+  },
+  {
+    "en": "Put up or shut up",
+    "zh": "你行你上"
+  },
+  {
+    "en": "Cat got your tongue?",
+    "zh": "你怎么不说话?"
+  },
+  {
+    "en": "I stand corrected",
+    "zh": "我承认错误"
+  },
+  {
+    "en": "Money is no object",
+    "zh": "钱不是问题"
+  },
+  {
+    "en": "I just lost my appetite",
+    "zh": "我刚没了胃口"
+  },
+  {
+    "en": "I looked up to you",
+    "zh": "我曾经很仰慕你"
+  },
+  {
+    "en": "What‘s the occasion?",
+    "zh": "今天是什么日子吗?"
+  },
+  {
+    "en": "I'm rooting for you",
+    "zh": "我支持你"
+  },
+  {
+    "en": "You underestimate me",
+    "zh": "你小看我了"
+  },
+  {
+    "en": "No doubt about it",
+    "zh": "毫无疑问"
+  },
+  {
+    "en": "You lost me",
+    "zh": "我听不懂了"
+  },
+  {
+    "en": "I've been dying to...",
+    "zh": "我非常想..."
+  },
+  {
+    "en": "You stood me up",
+    "zh": "你放我鸽子"
+  },
+  {
+    "en": "A little bird told me",
+    "zh": "我听人说的"
+  },
+  {
+    "en": "it's the thought that counts",
+    "zh": "心意最重要"
+  },
+  {
+    "en": "At your service",
+    "zh": "听候吩咐"
+  },
+  {
+    "en": "it's on the tip of my tongue",
+    "zh": "差一点就想起来了"
+  },
+  {
+    "en": "Over my dead body",
+    "zh": "想都别想"
+  },
+  {
+    "en": "Read between the lines",
+    "zh": "体会言外之意"
+  },
+  {
+    "en": "Just one thing after another",
+    "zh": "事情一件接着一件"
+  },
+  {
+    "en": "Every problem is an opportunity",
+    "zh": "有问题也意味着有机会"
+  },
+  {
+    "en": "It serves you right",
+    "zh": "你活该"
+  },
+  {
+    "en": "Put it on speaker",
+    "zh": "开免提"
+  },
+  {
+    "en": "Joke is on you",
+    "zh": "打脸了吧"
+  },
+  {
+    "en": "I wasn't born yesterday",
+    "zh": "我又不是三岁小孩"
+  },
+  {
+    "en": "What's mine is yours",
+    "zh": "我的就是你的"
+  },
+  {
+    "en": "I couldn't eat another bite",
+    "zh": "我吃饱了"
+  },
+  {
     "en": "You're a phony",
-    "zh": "音标"
+    "zh": "你真虚伪"
+  },
+  {
+    "en": "Stop embarrassing yourself",
+    "zh": "别丢人了"
+  },
+  {
+    "en": "Same old, same old",
+    "zh": "老样子"
+  },
+  {
+    "en": "like the back of my hand",
+    "zh": "了如指掌"
+  },
+  {
+    "en": "Don't rub it in",
+    "zh": "别戳我痛处"
+  },
+  {
+    "en": "You can't have it both ways",
+    "zh": "你不能两者兼得"
+  },
+  {
+    "en": "Don't hold your breath",
+    "zh": "别抱太大希望"
+  },
+  {
+    "en": "I'm at my wit's end",
+    "zh": "我实在没办法了"
+  },
+  {
+    "en": "You haven't aged a day",
+    "zh": "你可一点都没变老"
+  },
+  {
+    "en": "Put yourself in my shoes",
+    "zh": "替我想一下"
+  },
+  {
+    "en": "I'm on fire",
+    "zh": "我太厉害了"
+  },
+  {
+    "en": "I'll drop you off",
+    "zh": "我送你"
+  },
+  {
+    "en": "Out of sight, out of mind",
+    "zh": "眼不见，心不念"
+  },
+  {
+    "en": "I'll make it worth your while",
+    "zh": "我不会让你白费力气的"
+  },
+  {
+    "en": "What's it to you?",
+    "zh": "这关你什么事?"
+  },
+  {
+    "en": "Don't sugarcoat it",
+    "zh": "别说的那么好听"
+  },
+  {
+    "en": "This is the last straw",
+    "zh": "忍无可忍"
+  },
+  {
+    "en": "lt's worth a shot",
+    "zh": "值得一试"
+  },
+  {
+    "en": "Get off your high horse",
+    "zh": "别自以为是"
+  },
+  {
+    "en": "I'll see myself out",
+    "zh": "请留步。不用送了"
+  },
+  {
+    "en": "Keep it casual",
+    "zh": "随意些"
+  },
+  {
+    "en": "I never thought of it that way",
+    "zh": "我从没那样想过"
+  },
+  {
+    "en": "I'll get out of your hair",
+    "zh": "不打扰你了"
+  },
+  {
+    "en": "Are you on any medication?",
+    "zh": "你有在服用什么药吗?"
+  },
+  {
+    "en": "You're twisting my words",
+    "zh": "你在曲解我的话"
+  },
+  {
+    "en": "I couldn't care less",
+    "zh": "我根本不在乎"
+  },
+  {
+    "en": "It's not rocket science",
+    "zh": "这没什么难的"
+  },
+  {
+    "en": "Don't beat yourself up",
+    "zh": "别太自责了"
+  },
+  {
+    "en": "What's in it for me?",
+    "zh": "对我有什么好处?"
+  },
+  {
+    "en": "Don't flatter yourself",
+    "zh": "别自以为是"
+  },
+  {
+    "en": "There you go again",
+    "zh": "你又这样了"
+  },
+  {
+    "en": "I don't fit in here",
+    "zh": "我不适应这里"
+  },
+  {
+    "en": "Best two out of three",
+    "zh": "三局两胜"
+  },
+  {
+    "en": "What time do you get off work?",
+    "zh": "你几点下班?"
+  },
+  {
+    "en": "You're wasting your breath",
+    "zh": "你是在白费口舌"
+  },
+  {
+    "en": "Patience is a virtue",
+    "zh": "耐心是一种美德"
+  },
+  {
+    "en": "My door is always open",
+    "zh": "尽管来找我"
+  },
+  {
+    "en": "In for a penny, in for a pound",
+    "zh": "一不做 二不休"
+  },
+  {
+    "en": "You're breaking up",
+    "zh": "你声音断断续续的"
+  },
+  {
+    "en": "Pinky swear",
+    "zh": "拉钩（保证）"
+  },
+  {
+    "en": "Are you mocking me?",
+    "zh": "你是在嘲笑我吗?"
+  },
+  {
+    "en": "Have you no shame?",
+    "zh": "你还要不要脸?"
+  },
+  {
+    "en": "I'm in your debt",
+    "zh": "感激不尽"
+  },
+  {
+    "en": "Don't get cocky",
+    "zh": "别太得意"
+  },
+  {
+    "en": "You make me sick",
+    "zh": "你让我恶心"
+  },
+  {
+    "en": "Speak of the devil",
+    "zh": "说曹操，曹操就到"
+  },
+  {
+    "en": "You are in for a treat",
+    "zh": "相信你会喜欢的"
+  },
+  {
+    "en": "My word is my bond",
+    "zh": "我说话算数"
+  },
+  {
+    "en": "Just a heads-up",
+    "zh": "提个醒"
+  },
+  {
+    "en": "You read my mind",
+    "zh": "你真懂我"
+  },
+  {
+    "en": "Let me get this straight",
+    "zh": "让我来理清楚"
+  },
+  {
+    "en": "I'm in the middle of something",
+    "zh": "我现在有事在忙"
+  },
+  {
+    "en": "You crack me up",
+    "zh": "你真逗啊"
+  },
+  {
+    "en": "You look sharp",
+    "zh": "你看上去真精神"
+  },
+  {
+    "en": "You owe me a favor",
+    "zh": "你欠我个人情"
+  },
+  {
+    "en": "Keep your shirt on",
+    "zh": "着啥急啊"
+  },
+  {
+    "en": "Mind if I sit?",
+    "zh": "介意我坐这儿吗"
+  },
+  {
+    "en": "Rock, paper, scissors",
+    "zh": "石头剪刀布"
+  },
+  {
+    "en": "Cool as a cucumber",
+    "zh": "冷静得像黄瓜一样"
+  },
+  {
+    "en": "Another day, another dollar",
+    "zh": "做一天和尚，撞一天钟"
+  },
+  {
+    "en": "You got a lot of nerve",
+    "zh": "勇气可嘉"
+  },
+  {
+    "en": "It's my day off",
+    "zh": "今天我休息"
+  },
+  {
+    "en": "Hold your horses",
+    "zh": "别着急"
+  },
+  {
+    "en": "Do I make myself clear?",
+    "zh": "我说得够清楚吗?"
+  },
+  {
+    "en": "Thanks for your hospitality",
+    "zh": "谢谢你的款待"
+  },
+  {
+    "en": "My hands are tied",
+    "zh": "我无能为力"
+  },
+  {
+    "en": "You want a piece of me?",
+    "zh": "想揍我是吗?"
+  },
+  {
+    "en": "What are the odds",
+    "zh": "我们真巧"
+  },
+  {
+    "en": "I'm a little on edge",
+    "zh": "我有点紧张"
+  },
+  {
+    "en": "It happens all the time",
+    "zh": "这很正常啊"
+  },
+  {
+    "en": "Go easy on me",
+    "zh": "别要求那么高"
+  },
+  {
+    "en": "Honesty is the best policy",
+    "zh": "诚实是最好的策略"
+  },
+  {
+    "en": "It's all in your head",
+    "zh": "你想多了"
+  },
+  {
+    "en": "That means a lot to me",
+    "zh": "这对我很重要"
+  },
+  {
+    "en": "Behave yourself",
+    "zh": "你要乖哦"
+  },
+  {
+    "en": "I'm working on it",
+    "zh": "我正在想办法解决"
+  },
+  {
+    "en": "Actions speak louder than words",
+    "zh": "行动胜于空谈"
+  },
+  {
+    "en": "Rise and shine",
+    "zh": "该起床啦"
+  },
+  {
+    "en": "I'll give it a shot",
+    "zh": "我想试试"
+  },
+  {
+    "en": "I'm on a diet",
+    "zh": "我在减肥呢"
+  },
+  {
+    "en": "You have a death wish?",
+    "zh": "你想找死吗?"
+  },
+  {
+    "en": "Safe and sound",
+    "zh": "毫发无伤"
+  },
+  {
+    "en": "Give me some sugar",
+    "zh": "亲一下"
+  },
+  {
+    "en": "Don't lecture me",
+    "zh": "别对我说教"
+  },
+  {
+    "en": "Fake it till you make it",
+    "zh": "先装模作样直到有模有样"
+  },
+  {
+    "en": "what's on your mind?",
+    "zh": "在想什么呢?"
+  },
+  {
+    "en": "What if you're wrong?",
+    "zh": "如果你错了呢?"
+  },
+  {
+    "en": "I kid you not",
+    "zh": "我没骗你"
+  },
+  {
+    "en": "Get to the point",
+    "zh": "直接说重点"
+  },
+  {
+    "en": "I'm in charge",
+    "zh": "我说了算"
+  },
+  {
+    "en": "You set me up",
+    "zh": "你陷害我"
+  },
+  {
+    "en": "Talk is cheap",
+    "zh": "光说没用"
+  },
+  {
+    "en": "What's the big deal?",
+    "zh": "多大事啊?"
+  },
+  {
+    "en": "Stay out of it",
+    "zh": "你别管"
+  },
+  {
+    "en": "Once in a blue moon",
+    "zh": "千载难逢（很少发生）"
+  },
+  {
+    "en": "Don't get too attached",
+    "zh": "别太沉迷了"
+  },
+  {
+    "en": "It pisses me off",
+    "zh": "让我火大"
+  },
+  {
+    "en": "That's more like it",
+    "zh": "这样才好"
+  },
+  {
+    "en": "You are way out of line",
+    "zh": "你太过分了"
+  },
+  {
+    "en": "You got a problem?",
+    "zh": "你有意见?"
+  },
+  {
+    "en": "Don't be so melodramatic",
+    "zh": "别那么矫情啦"
+  },
+  {
+    "en": "One step at a time",
+    "zh": "一步一步来"
+  },
+  {
+    "en": "I'm an open book",
+    "zh": "我是个坦率的人"
+  },
+  {
+    "en": "Not in a million years",
+    "zh": "绝对不可能"
+  },
+  {
+    "en": "Let me put it this way",
+    "zh": "让我这么说吧"
+  },
+  {
+    "en": "Give me a break",
+    "zh": "饶了我吧"
+  },
+  {
+    "en": "Take it or leave it",
+    "zh": "爱信不信"
+  },
+  {
+    "en": "You're incorrigible",
+    "zh": "你真是死性不改呀"
+  },
+  {
+    "en": "Keep a low profile",
+    "zh": "低调一点"
+  },
+  {
+    "en": "Don't patronize me",
+    "zh": "别敷衍我"
+  },
+  {
+    "en": "Don't push your luck",
+    "zh": "别得寸进尺"
+  },
+  {
+    "en": "Force of habit",
+    "zh": "习惯了"
+  },
+  {
+    "en": "What's there to say?",
+    "zh": "有什么可说的呢?"
+  },
+  {
+    "en": "Always have, always will",
+    "zh": "一直都是，永远都是"
+  },
+  {
+    "en": "Make a fresh start",
+    "zh": "重新开始"
+  },
+  {
+    "en": "Don't ever do that again",
+    "zh": "以后不要再这样了"
+  },
+  {
+    "en": "What are you doing up so late?",
+    "zh": "干嘛这么晚还不睡?"
+  },
+  {
+    "en": "I'm not a quitter",
+    "zh": "我不是个半途而废的人"
+  },
+  {
+    "en": "i'm just not good enough for you",
+    "zh": "就是我不够好，配不上你呗"
+  },
+  {
+    "en": "How you holding up?",
+    "zh": "你还好吗?"
+  },
+  {
+    "en": "Let's not dwell on the past",
+    "zh": "不要活在过去"
+  },
+  {
+    "en": "What do you want from me?",
+    "zh": "你到底想要我怎样?"
+  },
+  {
+    "en": "I don't deserve you",
+    "zh": "我配不上你"
+  },
+  {
+    "en": "Love at first sight",
+    "zh": "一见钟情"
+  },
+  {
+    "en": "I'm at a loss",
+    "zh": "我一片茫然"
+  },
+  {
+    "en": "Time to face the music",
+    "zh": "是时候面对现实了"
+  },
+  {
+    "en": "How many times do I have to tell you?",
+    "zh": "你要我说多少遍?"
+  },
+  {
+    "en": "I stayed up all night",
+    "zh": "我整晚都睡不着"
+  },
+  {
+    "en": "I'm turning over a new leaf",
+    "zh": "我正改过自新，重新开始"
+  },
+  {
+    "en": "It's a pipe dream",
+    "zh": "它就是个白日梦"
+  },
+  {
+    "en": "I had a crush on you",
+    "zh": "我曾暗恋过你"
+  },
+  {
+    "en": "First come, first served",
+    "zh": "先到先得"
+  },
+  {
+    "en": "Day in and day out",
+    "zh": "日复一日，没完没了"
+  },
+  {
+    "en": "I don't feel like talking",
+    "zh": "我没心情说话啊"
+  },
+  {
+    "en": "Suck it up",
+    "zh": "忍忍吧"
+  },
+  {
+    "en": "it's complicated",
+    "zh": "一言难尽"
+  },
+  {
+    "en": "i should've known",
+    "zh": "我早该知道的"
+  },
+  {
+    "en": "When it rains, it pours",
+    "zh": "祸不单行"
   },
   {
     "en": "We're meant to be together",
-    "zh": "中文含义"
+    "zh": "我们注定在一起的"
   }
 ]
